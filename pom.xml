@@ -21,5 +21,11 @@
             <artifactId>AbsoluteLayout</artifactId>
             <version>RELEASE270</version>
         </dependency>
+        <!-- Untuk file .xlsx (Excel 2007 dan lebih baru) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.4</version> <!-- Anda bisa menggunakan versi terbaru -->
+        </dependency>
     </dependencies>
 </project>

@@ -164,10 +164,9 @@ public class loginForm extends javax.swing.JFrame {
         // Validasi sederhana
         if (username.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Username dan Password tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
-            return; // Hentikan proses jika kosong
+            return;
         }
 
-        // Query SQL
         String query = "SELECT * FROM users WHERE username = ? AND password = ?";
 
         // try-with-resources connection

@@ -7,6 +7,13 @@ package com.mycompany.eabsensii;
 import java.awt.CardLayout;
 import javax.swing.JOptionPane;
 import com.mycompany.eabsensii.view.PanelKelas;
+import com.mycompany.eabsensii.view.PanelMatkul;
+import com.mycompany.eabsensii.view.PanelDosen;
+import com.mycompany.eabsensii.view.PanelMahasiswa;
+import com.mycompany.eabsensii.view.PanelJadwal;
+import com.mycompany.eabsensii.view.PanelAbsensi;
+import com.mycompany.eabsensii.view.PanelDashboard;
+
 
 /**
  *
@@ -16,7 +23,13 @@ public class MainDashboard extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(MainDashboard.class.getName());
     CardLayout cardLayout;
-    private PanelKelas panelKelas;
+    private final PanelKelas panelKelas;
+    private final PanelMatkul panelMatkul;
+    private final PanelDosen panelDosen;
+    private final PanelMahasiswa panelMahasiswa;
+    private final PanelJadwal panelJadwal;
+    private final PanelAbsensi panelAbsensi;
+    private final PanelDashboard panelDashboard;
 
     /**
      * Creates new form MainDashboard
@@ -26,7 +39,19 @@ public class MainDashboard extends javax.swing.JFrame {
 
         cardLayout = (CardLayout) (mainPanel.getLayout());
         panelKelas = new PanelKelas();
+        panelMatkul = new PanelMatkul();
+        panelDosen = new PanelDosen();
+        panelMahasiswa = new PanelMahasiswa();
+        panelJadwal = new PanelJadwal();
+        panelAbsensi = new PanelAbsensi();
+        panelDashboard = new PanelDashboard();
         mainPanel.add(panelKelas, "panelKelas");
+        mainPanel.add(panelMatkul, "panelMatkul");
+        mainPanel.add(panelDosen, "panelDosen");
+        mainPanel.add(panelMahasiswa, "panelMahasiswa");
+        mainPanel.add(panelJadwal, "panelJadwal");
+        mainPanel.add(panelAbsensi, "panelAbsensi");
+        mainPanel.add(panelDashboard, "panelDashboard");
     }
 
     /**
@@ -50,22 +75,9 @@ public class MainDashboard extends javax.swing.JFrame {
         btnAbsensi = new javax.swing.JButton();
         btnLogout = new javax.swing.JButton();
         mainPanel = new javax.swing.JPanel();
-        panelDashboard = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        panelMahasiswa = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        panelDosen = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        panelMatkul = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
-        panelJadwal = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        panelAbsensi = new javax.swing.JPanel();
-        jLabel8 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("E-Absensi Mahasiswa");
-        setPreferredSize(new java.awt.Dimension(1000, 600));
         setResizable(false);
 
         sidebar.setBackground(new java.awt.Color(0, 153, 153));
@@ -225,134 +237,6 @@ public class MainDashboard extends javax.swing.JFrame {
         mainPanel.setPreferredSize(new java.awt.Dimension(800, 600));
         mainPanel.setLayout(new java.awt.CardLayout());
 
-        panelDashboard.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-
-        jLabel2.setText("Selamat Datang di Dashboard");
-
-        javax.swing.GroupLayout panelDashboardLayout = new javax.swing.GroupLayout(panelDashboard);
-        panelDashboard.setLayout(panelDashboardLayout);
-        panelDashboardLayout.setHorizontalGroup(
-            panelDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelDashboardLayout.createSequentialGroup()
-                .addGap(185, 185, 185)
-                .addComponent(jLabel2)
-                .addContainerGap(459, Short.MAX_VALUE))
-        );
-        panelDashboardLayout.setVerticalGroup(
-            panelDashboardLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelDashboardLayout.createSequentialGroup()
-                .addGap(139, 139, 139)
-                .addComponent(jLabel2)
-                .addContainerGap(445, Short.MAX_VALUE))
-        );
-
-        mainPanel.add(panelDashboard, "panelDashboard");
-
-        jLabel3.setText("Selamat Datang di mahasiswa");
-
-        javax.swing.GroupLayout panelMahasiswaLayout = new javax.swing.GroupLayout(panelMahasiswa);
-        panelMahasiswa.setLayout(panelMahasiswaLayout);
-        panelMahasiswaLayout.setHorizontalGroup(
-            panelMahasiswaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelMahasiswaLayout.createSequentialGroup()
-                .addGap(373, 373, 373)
-                .addComponent(jLabel3)
-                .addContainerGap(270, Short.MAX_VALUE))
-        );
-        panelMahasiswaLayout.setVerticalGroup(
-            panelMahasiswaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelMahasiswaLayout.createSequentialGroup()
-                .addGap(147, 147, 147)
-                .addComponent(jLabel3)
-                .addContainerGap(437, Short.MAX_VALUE))
-        );
-
-        mainPanel.add(panelMahasiswa, "panelMahasiswa");
-
-        jLabel4.setText("Selamat Datang di dosen");
-
-        javax.swing.GroupLayout panelDosenLayout = new javax.swing.GroupLayout(panelDosen);
-        panelDosen.setLayout(panelDosenLayout);
-        panelDosenLayout.setHorizontalGroup(
-            panelDosenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelDosenLayout.createSequentialGroup()
-                .addContainerGap(358, Short.MAX_VALUE)
-                .addComponent(jLabel4)
-                .addGap(311, 311, 311))
-        );
-        panelDosenLayout.setVerticalGroup(
-            panelDosenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelDosenLayout.createSequentialGroup()
-                .addGap(199, 199, 199)
-                .addComponent(jLabel4)
-                .addContainerGap(385, Short.MAX_VALUE))
-        );
-
-        mainPanel.add(panelDosen, "panelDosen");
-
-        jLabel6.setText("Selamat Datang di matkul");
-
-        javax.swing.GroupLayout panelMatkulLayout = new javax.swing.GroupLayout(panelMatkul);
-        panelMatkul.setLayout(panelMatkulLayout);
-        panelMatkulLayout.setHorizontalGroup(
-            panelMatkulLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelMatkulLayout.createSequentialGroup()
-                .addGap(285, 285, 285)
-                .addComponent(jLabel6)
-                .addContainerGap(379, Short.MAX_VALUE))
-        );
-        panelMatkulLayout.setVerticalGroup(
-            panelMatkulLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelMatkulLayout.createSequentialGroup()
-                .addGap(204, 204, 204)
-                .addComponent(jLabel6)
-                .addContainerGap(380, Short.MAX_VALUE))
-        );
-
-        mainPanel.add(panelMatkul, "panelMatkul");
-
-        jLabel7.setText("Selamat Datang di jadwal");
-
-        javax.swing.GroupLayout panelJadwalLayout = new javax.swing.GroupLayout(panelJadwal);
-        panelJadwal.setLayout(panelJadwalLayout);
-        panelJadwalLayout.setHorizontalGroup(
-            panelJadwalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelJadwalLayout.createSequentialGroup()
-                .addContainerGap(409, Short.MAX_VALUE)
-                .addComponent(jLabel7)
-                .addGap(258, 258, 258))
-        );
-        panelJadwalLayout.setVerticalGroup(
-            panelJadwalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelJadwalLayout.createSequentialGroup()
-                .addGap(185, 185, 185)
-                .addComponent(jLabel7)
-                .addContainerGap(399, Short.MAX_VALUE))
-        );
-
-        mainPanel.add(panelJadwal, "panelJadwal");
-
-        jLabel8.setText("Selamat Datang di absensi");
-
-        javax.swing.GroupLayout panelAbsensiLayout = new javax.swing.GroupLayout(panelAbsensi);
-        panelAbsensi.setLayout(panelAbsensiLayout);
-        panelAbsensiLayout.setHorizontalGroup(
-            panelAbsensiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelAbsensiLayout.createSequentialGroup()
-                .addContainerGap(322, Short.MAX_VALUE)
-                .addComponent(jLabel8)
-                .addGap(340, 340, 340))
-        );
-        panelAbsensiLayout.setVerticalGroup(
-            panelAbsensiLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelAbsensiLayout.createSequentialGroup()
-                .addGap(173, 173, 173)
-                .addComponent(jLabel8)
-                .addContainerGap(411, Short.MAX_VALUE))
-        );
-
-        mainPanel.add(panelAbsensi, "panelAbsensi");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -445,20 +329,8 @@ public class MainDashboard extends javax.swing.JFrame {
     private javax.swing.JButton btnMahasiswa;
     private javax.swing.JButton btnMatkul;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JPanel mainPanel;
-    private javax.swing.JPanel panelAbsensi;
-    private javax.swing.JPanel panelDashboard;
-    private javax.swing.JPanel panelDosen;
-    private javax.swing.JPanel panelJadwal;
-    private javax.swing.JPanel panelMahasiswa;
-    private javax.swing.JPanel panelMatkul;
     private javax.swing.JPanel sidebar;
     // End of variables declaration//GEN-END:variables
 }

@@ -8,32 +8,18 @@ package com.mycompany.eabsensii.model;
  *
  * @author shaqy
  */
-public class KelasModel {
+public class KelasExportModel {
 
-    private int idKelas;
     private String namaKelas;
-    private String namaProdi; 
-    private String tahun;     
+    private String namaProdi;
+    private String tahun;
+    private int totalMahasiswa;
 
-    public KelasModel(int idKelas, String namaKelas, String namaProdi, String tahun) {
-        this.idKelas = idKelas;
+    public KelasExportModel(String namaKelas, String namaProdi, String tahun, int totalMahasiswa) {
         this.namaKelas = namaKelas;
         this.namaProdi = namaProdi;
         this.tahun = tahun;
-    }
-    
-    public KelasModel(String namaKelas, String namaProdi, String tahun) {
-        this.namaKelas = namaKelas;
-        this.namaProdi = namaProdi;
-        this.tahun = tahun;
-    }
-
-    public int getIdKelas() {
-        return idKelas;
-    }
-
-    public void setIdKelas(int idKelas) {
-        this.idKelas = idKelas;
+        this.totalMahasiswa = totalMahasiswa;
     }
 
     public String getNamaKelas() {
@@ -58,5 +44,13 @@ public class KelasModel {
 
     public void setTahun(String tahun) {
         this.tahun = tahun;
+    }
+
+    public int getTotalMahasiswa() {
+        return totalMahasiswa;
+    }
+
+    public void setTotalMahasiswa(int totalMahasiswa) {
+        this.totalMahasiswa = totalMahasiswa;
     }
 }

@@ -4,8 +4,10 @@
  */
 package com.mycompany.eabsensii.view;
 
+import com.mycompany.eabsensii.EventBus;
 import com.mycompany.eabsensii.dao.KelasDAO;
 import com.mycompany.eabsensii.model.KelasModel;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
@@ -15,23 +17,61 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author shaqy
  */
-public class PanelKelas extends javax.swing.JPanel {
+public class PanelKelas extends javax.swing.JPanel implements EventBus.DataChangeListener {
 
     private final KelasDAO kelasDAO;
     private boolean isFirstTime = true;
-
-    /**
-     * Creates new form PanelKelas
-     */
+    private List<KelasModel> listKelasData;
+    
     public PanelKelas() {
         initComponents();
         kelasDAO = new KelasDAO();
+        listKelasData = new ArrayList<>();
         loadProdiToComboBox();
+        cmbProdi.addActionListener(e -> suggestNextClassName());
+        txtTahunProdi.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                suggestNextClassName();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                suggestNextClassName();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                suggestNextClassName();
+            }
+        });
+        tblKelas.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                loadFormData();
+            }
+        });
+
+        txtCariNamaKelas.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                filterTable();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                filterTable();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                filterTable();
+            }
+        });
     }
 
     private void loadProdiToComboBox() {
         List<String> listProdi = kelasDAO.getAllProdiNames();
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(listProdi.toArray(String[]::new));
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(listProdi.toArray(new String[0]));
         cmbProdi.setModel(model);
     }
 
@@ -46,17 +86,15 @@ public class PanelKelas extends javax.swing.JPanel {
 
     // Mengambil data dari DAO dan tampil ke JTable
     private void loadDataToTable() {
-        List<KelasModel> listKelas = kelasDAO.getAllKelas();
+        listKelasData = kelasDAO.getAllKelas();
 
-        // Dapatkan model dari JTable
         DefaultTableModel model = (DefaultTableModel) tblKelas.getModel();
-        model.setRowCount(0); // Kosongkan tabel sebelumnya
+        model.setRowCount(0);
 
-        // Isi tabel dengan data dari list
         int no = 1;
-        for (KelasModel kelas : listKelas) {
+        for (KelasModel kelas : listKelasData) { // Gunakan variabel kelas
             Object[] rowData = {
-                no++, // Nomor urut
+                no++ + ".",
                 kelas.getNamaKelas(),
                 kelas.getNamaProdi(),
                 kelas.getTahun()
@@ -68,7 +106,59 @@ public class PanelKelas extends javax.swing.JPanel {
     private void clearForm() {
         txtNamaKelas.setText("");
         txtTahunProdi.setText("");
-        cmbProdi.setSelectedIndex(0);
+        cmbProdi.setSelectedIndex(-1);
+    }
+
+    private void suggestNextClassName() {
+        if (cmbProdi.getSelectedItem() == null || txtTahunProdi.getText().trim().isEmpty()) {
+            return;
+        }
+
+        String prodi = cmbProdi.getSelectedItem().toString();
+        String tahun = txtTahunProdi.getText().trim();
+
+        String suggestedName = kelasDAO.generateNextClassName(prodi, tahun);
+        if (suggestedName != null) {
+            txtNamaKelas.setText(suggestedName);
+        }
+    }
+
+    private void loadFormData() {
+        int selectedRow = tblKelas.getSelectedRow();
+        if (selectedRow != -1) {
+            KelasModel selectedKelas = listKelasData.get(selectedRow);
+
+            txtNamaKelas.setText(selectedKelas.getNamaKelas());
+            txtTahunProdi.setText(selectedKelas.getTahun());
+            cmbProdi.setSelectedItem(selectedKelas.getNamaProdi());
+        }
+    }
+
+    private void filterTable() {
+        String searchText = txtCariNamaKelas.getText().trim().toLowerCase();
+        DefaultTableModel filteredModel = new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"No", "Nama Kelas", "Program Studi", "Tahun"}
+        );
+
+        int no = 1;
+        for (KelasModel kelas : listKelasData) {
+            if (kelas.getNamaKelas().toLowerCase().contains(searchText)) {
+                Object[] rowData = {
+                    no++ + ".",
+                    kelas.getNamaKelas(),
+                    kelas.getNamaProdi(),
+                    kelas.getTahun()
+                };
+                filteredModel.addRow(rowData);
+            }
+        }
+        tblKelas.setModel(filteredModel);
+    }
+
+    @Override
+    public void onDataChanged() {
+        loadDataToTable();
     }
 
     /**
@@ -89,13 +179,12 @@ public class PanelKelas extends javax.swing.JPanel {
         jLabel10 = new javax.swing.JLabel();
         txtNamaKelas = new javax.swing.JTextField();
         btnTambah = new javax.swing.JButton();
-        btnUbah = new javax.swing.JButton();
         btnHapus = new javax.swing.JButton();
         btnBersih = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblKelas = new javax.swing.JTable();
         jLabel11 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtCariNamaKelas = new javax.swing.JTextField();
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 20)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(0, 102, 102));
@@ -141,17 +230,6 @@ public class PanelKelas extends javax.swing.JPanel {
             }
         });
 
-        btnUbah.setBackground(new java.awt.Color(0, 153, 153));
-        btnUbah.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnUbah.setForeground(new java.awt.Color(255, 255, 255));
-        btnUbah.setText("Ubah");
-        btnUbah.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        btnUbah.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnUbahActionPerformed(evt);
-            }
-        });
-
         btnHapus.setBackground(new java.awt.Color(0, 153, 153));
         btnHapus.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnHapus.setForeground(new java.awt.Color(255, 255, 255));
@@ -173,6 +251,9 @@ public class PanelKelas extends javax.swing.JPanel {
                 btnBersihActionPerformed(evt);
             }
         });
+
+        jScrollPane1.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(2000, 2000));
 
         tblKelas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -203,25 +284,23 @@ public class PanelKelas extends javax.swing.JPanel {
         tblKelas.setColumnSelectionAllowed(true);
         tblKelas.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tblKelas);
-        tblKelas.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tblKelas.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         if (tblKelas.getColumnModel().getColumnCount() > 0) {
-            tblKelas.getColumnModel().getColumn(0).setMinWidth(30);
+            tblKelas.getColumnModel().getColumn(0).setResizable(false);
             tblKelas.getColumnModel().getColumn(0).setPreferredWidth(30);
-            tblKelas.getColumnModel().getColumn(0).setMaxWidth(30);
-            tblKelas.getColumnModel().getColumn(1).setMinWidth(150);
+            tblKelas.getColumnModel().getColumn(1).setResizable(false);
             tblKelas.getColumnModel().getColumn(1).setPreferredWidth(150);
-            tblKelas.getColumnModel().getColumn(1).setMaxWidth(150);
-            tblKelas.getColumnModel().getColumn(2).setMinWidth(400);
+            tblKelas.getColumnModel().getColumn(2).setResizable(false);
             tblKelas.getColumnModel().getColumn(2).setPreferredWidth(400);
-            tblKelas.getColumnModel().getColumn(2).setMaxWidth(400);
+            tblKelas.getColumnModel().getColumn(3).setResizable(false);
         }
 
         jLabel11.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jLabel11.setText("Cari Nama Kelas:");
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        txtCariNamaKelas.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                txtCariNamaKelasActionPerformed(evt);
             }
         });
 
@@ -229,25 +308,19 @@ public class PanelKelas extends javax.swing.JPanel {
         panelKelas.setLayout(panelKelasLayout);
         panelKelasLayout.setHorizontalGroup(
             panelKelasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelKelasLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel5)
-                .addGap(291, 291, 291))
             .addGroup(panelKelasLayout.createSequentialGroup()
                 .addGap(36, 36, 36)
                 .addGroup(panelKelasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelKelasLayout.createSequentialGroup()
                         .addComponent(btnTambah)
                         .addGap(18, 18, 18)
-                        .addComponent(btnUbah)
-                        .addGap(18, 18, 18)
                         .addComponent(btnHapus)
                         .addGap(18, 18, 18)
                         .addComponent(btnBersih)
-                        .addGap(30, 30, 30)
+                        .addGap(124, 124, 124)
                         .addComponent(jLabel11)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtCariNamaKelas, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelKelasLayout.createSequentialGroup()
                         .addGroup(panelKelasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblProdi)
@@ -256,10 +329,18 @@ public class PanelKelas extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panelKelasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(cmbProdi, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtNamaKelas)
-                            .addComponent(txtTahunProdi)))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 728, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(36, Short.MAX_VALUE))
+                            .addComponent(txtTahunProdi)
+                            .addComponent(txtNamaKelas))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelKelasLayout.createSequentialGroup()
+                .addContainerGap(45, Short.MAX_VALUE)
+                .addGroup(panelKelasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelKelasLayout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addGap(291, 291, 291))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelKelasLayout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 708, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(47, 47, 47))))
         );
         panelKelasLayout.setVerticalGroup(
             panelKelasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -281,14 +362,13 @@ public class PanelKelas extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addGroup(panelKelasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnTambah)
-                    .addComponent(btnUbah)
                     .addComponent(btnHapus)
                     .addComponent(btnBersih)
                     .addComponent(jLabel11)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtCariNamaKelas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(71, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -326,33 +406,74 @@ public class PanelKelas extends javax.swing.JPanel {
     }//GEN-LAST:event_txtNamaKelasActionPerformed
 
     private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
-        String namaKelas = txtNamaKelas.getText();
+        // 1. Ambil data dari form
+        String namaKelas = txtNamaKelas.getText().trim();
         String prodi = cmbProdi.getSelectedItem().toString();
-        String tahun = txtTahunProdi.getText();
+        String tahun = txtTahunProdi.getText().trim();
 
-        if (namaKelas.isEmpty() || tahun.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Nama kelas dan tahun tidak boleh kosong!", "Error", JOptionPane.ERROR_MESSAGE);
+        // 2. Validasi input form
+        if (namaKelas.isEmpty() || prodi.isEmpty() || tahun.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Semua field harus diisi!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
+        // 3. Buat objek model
         KelasModel newKelas = new KelasModel(namaKelas, prodi, tahun);
-        kelasDAO.addKelas(newKelas);
 
-        JOptionPane.showMessageDialog(this, "Data kelas berhasil ditambahkan!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-//        clearForm();
-        loadDataToTable(); // Refresh tabel
+        // 4. Panggil DAO
+        boolean isSuccess = kelasDAO.addKelas(newKelas);
+
+        // 5. Tampilkan pesan berdasarkan hasil
+        if (isSuccess) {
+            JOptionPane.showMessageDialog(this, "Data kelas berhasil ditambahkan!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            clearForm();
+            loadDataToTable();
+            EventBus.notifyDataChanged();
+        } else {
+            JOptionPane.showMessageDialog(this, "Gagal menambah data. Kemungkinan nama kelas sudah ada.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnTambahActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
-    private void btnUbahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUbahActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnUbahActionPerformed
+    private void txtCariNamaKelasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtCariNamaKelasActionPerformed
+        filterTable();
+    }//GEN-LAST:event_txtCariNamaKelasActionPerformed
 
     private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
-        // TODO add your handling code here:
+        // 1. Ambil baris yang sedang di highlight
+        int selectedRow = tblKelas.getSelectedRow();
+
+        // 2. Validasi
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Pilih data kelas yang ingin dihapus terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 3. Ambil data kelas dari list
+        KelasModel selectedKelas = listKelasData.get(selectedRow);
+        int idKelas = selectedKelas.getIdKelas();
+        String namaKelas = selectedKelas.getNamaKelas();
+
+        // 4. Tampilkan dialog konfirmasi
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Apakah Anda yakin ingin menghapus kelas '" + namaKelas + "'?",
+                "Konfirmasi Hapus",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        // 5. Confirmation
+        if (confirm == JOptionPane.YES_OPTION) {
+            kelasDAO.deleteKelas(idKelas);
+
+            JOptionPane.showMessageDialog(this, "Data kelas berhasil dihapus.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+
+            // 6. Refresh tampilan
+            clearForm();
+            loadDataToTable();
+            EventBus.notifyDataChanged();
+
+        }
     }//GEN-LAST:event_btnHapusActionPerformed
 
     private void btnBersihActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBersihActionPerformed
@@ -364,17 +485,16 @@ public class PanelKelas extends javax.swing.JPanel {
     private javax.swing.JButton btnBersih;
     private javax.swing.JButton btnHapus;
     private javax.swing.JButton btnTambah;
-    private javax.swing.JButton btnUbah;
     private javax.swing.JComboBox<String> cmbProdi;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel lblProdi;
     private javax.swing.JPanel panelKelas;
     private javax.swing.JTable tblKelas;
+    private javax.swing.JTextField txtCariNamaKelas;
     private javax.swing.JTextField txtNamaKelas;
     private javax.swing.JTextField txtTahunProdi;
     // End of variables declaration//GEN-END:variables
